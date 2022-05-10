@@ -1,0 +1,169 @@
+.editor_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+
+  .editor {
+    background-color: rgb(242, 242, 242);
+    width: 95%;
+    height: 95%;
+    border: $border-generic;
+    border-radius: $border-radius-generic;
+    box-shadow: $box-shadow-generic;
+    margin-top: 30px;
+    padding: 16px;
+    .jsoneditor {
+      border-radius: $border-radius-generic;
+
+      font-family: Jura, Roboto, monospace;
+    }
+    .jsoneditor-btns {
+      button {
+        font-family: Jura, Roboto, monospace;
+        float: right;
+      }
+    }
+    .editor_header {
+      font-weight: 700;
+      display: flex;
+      justify-content: start;
+    }
+    .editor_content {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+
+      .editor_file_management {
+        width: 35%;
+        padding-right: 28px;
+        margin-right: 28px;
+        .editor_search_file_title {
+          display: flex;
+          justify-content: start;
+          margin-bottom: 12px;
+          font-weight: 700;
+        }
+        .editor_directories {
+          .editor_file_search {
+            display: flex;
+            justify-content: start;
+            label {
+              font-size: 12px;
+            }
+            input {
+              max-width: 130px;
+              margin-left: 8px;
+            }
+          }
+          .editor_button {
+            margin: 16px 0 0 0;
+
+            display: flex;
+            justify-content: start;
+            button {
+              font-family: Jura, Roboto, monospace;
+              background-color: #20a0ff;
+              color: white;
+              border: none;
+              padding: 5px 10px;
+              border-radius: 5px;
+            }
+          }
+        }
+
+        .editor_image_upload {
+          margin-top: 24px;
+          .editor_upload_image_title {
+            display: flex;
+            justify-content: start;
+            margin-bottom: 12px;
+            font-weight: 700;
+          }
+          .editor_upload_image_name {
+            display: flex;
+            justify-content: start;
+            margin-bottom: 12px;
+            label {
+              font-size: 12px;
+            }
+            input {
+              max-width: 130px;
+              margin-left: 8px;
+            }
+          }
+
+          .editor_upload_image_directory {
+            display: flex;
+            justify-content: start;
+            margin-bottom: 12px;
+            label {
+              font-size: 12px;
+            }
+            select {
+              margin-left: 32px;
+              max-width: 130px;
+            }
+          }
+          .dropbox {
+            outline: 2px dashed grey; /* the dash box */
+            outline-offset: -10px;
+            background: rgb(253, 255, 255);
+            color: dimgray;
+            padding: 10px 10px;
+            min-height: 200px; /* minimum height */
+            position: relative;
+            width: 250px;
+            cursor: pointer;
+
+            .dropbox_image_preview {
+              max-width: 200px;
+              max-height: 200px;
+            }
+          }
+
+          .input-file {
+            opacity: 0; /* invisible but it's there! */
+            width: 100%;
+            height: 200px;
+            position: absolute;
+            cursor: pointer;
+          }
+
+          .dropbox:hover {
+            background: rgb(
+              205,
+              205,
+              205
+            ); /* when mouse over to the drop zone, change color */
+          }
+
+          .dropbox p {
+            font-size: 1.2em;
+            text-align: center;
+            padding: 50px 0;
+          }
+
+          .editor_image_upload_button {
+            margin: 16px 0 0 0;
+
+            display: flex;
+            justify-content: start;
+            button {
+              font-family: Jura, Roboto, monospace;
+              background-color: #20a0ff;
+              color: white;
+              border: none;
+              padding: 5px 10px;
+              border-radius: 5px;
+            }
+          }
+        }
+      }
+    }
+    .editor_editor {
+      width: 75%;
+    }
+  }
+}
