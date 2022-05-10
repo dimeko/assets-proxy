@@ -1,0 +1,6 @@
+{
+    "migrations": [
+        "CREATE TABLE users (id int NOT NULL,`username` varchar(255), `password`  varchar(255),`website` varchar(255),`website_auth_username` varchar(255),`website_auth_password` varchar(255), `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (id))",
+        "CREATE TABLE logs (id int NOT NULL, `user` int, `event` varchar(255), `info` varchar(255), `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, PRIMARY KEY (id))"
+    ]
+}

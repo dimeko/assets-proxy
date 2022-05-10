@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono&family=Spectral:wght@300&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <script type="module" src="bundle.js" defer></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
+    
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"
+      integrity="sha512-eP6ippJojIKXKO8EPLtsUMS+/sAGHGo1UN/38swqZa1ypfcD4I0V/ac5G3VzaHfDaklFmQLEs51lhkkVaqg60Q=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico"/>
+  </head>
+  <body>
+    <header class="header">
+      <div class="nav">
+        <div class="left-section">
+          <h2 id="kl-header-text">
+            <a
+              class="olga-header-custom"
+              custom-link
+              href="/"
+              onclick="event.preventDefault()"
+              >Kleopatra Tsali</a
+            >
+          </h2>
+        </div>
+        <div class="middle-section"></div>
+        <div class="right-section">
+          <div>
+            <h4 id="kl-header-first-nav">
+              <a custom-link href="/works" onclick="event.preventDefault()"
+                >works</a
+              >
+            </h4>
+          </div>
+          <div>
+            <h4 id="kl-header-two-nav">
+              <a custom-link href="/cabane" onclick="event.preventDefault()"
+                >cabane</a
+              >
+            </h4>
+          </div>
+          <div>
+            <h4 id="kl-header-three-nav">
+              <a custom-link href="/contact" onclick="event.preventDefault()"
+                >contact</a
+              >
+            </h4>
+          </div>
+        </div>
+      </div>
+      <section class="section"></section>
+    </header>
+    <div class="main" id="root"></div>
+    <script>
+      const observer = lozad();
+      observer.observe();
+
+      window.addEventListener('scroll', function(){
+        const navbar = document.getElementsByClassName('nav')[0]
+        if(document.documentElement.scrollTop < 100) {
+          navbar.style.boxShadow = "none"
+        } else {
+          navbar.style.boxShadow = "1px 1px 3px #888888"
+        }
+        
+      });
+    </script>
+  </body>
+</html>
