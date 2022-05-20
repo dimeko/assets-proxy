@@ -2,7 +2,6 @@ package db_adapter
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -19,13 +18,12 @@ func Connect() *DB {
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
-	db_host := os.Getenv("DB_HOST")
-	db_user := os.Getenv("DB_USER")
-	db_pass := os.Getenv("DB_PASS")
-	db_database := os.Getenv("DB_DATABASE")
+	db_host := os.Getenv("DOCK_MYSQL_HOST")
+	db_user := os.Getenv("DOCK_MYSQL_USER")
+	db_pass := os.Getenv("DOCK_MYSQL_PASS")
+	db_database := os.Getenv("DOCK_MYSQL_DB")
 
 	connection := db_user + ":" + db_pass + "@tcp(" + db_host + ")/" + db_database
-	fmt.Println(connection)
 	db, err := sql.Open("mysql", connection)
 
 	if err != nil {

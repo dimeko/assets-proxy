@@ -14,7 +14,7 @@ type JSON_MIGRATIONS struct {
 
 func main() {
 	db := db_adapter.Connect()
-	file, err := ioutil.ReadFile("init_db.json")
+	file, err := ioutil.ReadFile("migrations/init_db.json")
 
 	if err != nil {
 		fmt.Println(err)
