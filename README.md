@@ -1,5 +1,5 @@
 # Information
-Assets proxy does not do much. It is just an "admin pane" for displaying and editing json files requested from a server.
+Assets proxy does not do much. It is just an "admin panel" for displaying and editing json files requested from a server.
 It only works alongside [assets-server](https://github.com/dimoiko100/assets-server) which is a very small server that is
 responsible for serving and storing json files
 
