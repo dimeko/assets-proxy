@@ -3,6 +3,7 @@ services:
   mysql:
     image: "mysql/mysql-server:5.7.12"
     restart: "always"
+    container_name: "${DOCK_MYSQL_CONTAINER_NAME}"
     environment:
       MYSQL_ROOT_HOST: "${DOCK_MYSQL_HOST}"
       MYSQL_ROOT_PASSWORD: "${DOCK_MYSQL_PASS}"

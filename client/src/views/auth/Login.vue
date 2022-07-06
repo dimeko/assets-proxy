@@ -29,21 +29,21 @@ export default {
         username: "",
         password: "",
       },
+      baseApiUrl: "/api/user/login",
     };
   },
   methods: {
     submit() {
       axios
-        .post("/api/user/login", {
+        .post(this.baseApiUrl, {
           username: this.fInput.username,
           password: this.fInput.password,
         })
-        .then((r) => {
-          console.log(r);
-          this.$router.push({name: "dashboard"})
+        .then(() => {
+          this.$router.push({ name: "dashboard" });
         })
         .catch(() => {
-           this.$router.push({name: "dashboard"})
+          this.$router.push({ name: "dashboard" });
         });
     },
   },

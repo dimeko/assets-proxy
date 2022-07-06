@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/master-assets-app/db_adapter"
+	"github.com/master-assets-app/db"
 )
 
 type LoginBodyType struct {
@@ -31,17 +31,27 @@ type EditDbFileType struct {
 	Data      json.RawMessage `json:"data"`
 }
 
+func setupCorsResponse(w *http.ResponseWriter, req *http.Request) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
+}
+
 func (l *LoginBodyType) hashedPassword() string {
 	hash := md5.Sum([]byte(l.Password))
 	return hex.EncodeToString(hash[:])
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method Not Supported", http.StatusMethodNotAllowed)
+	setupCorsResponse(&w, r)
+	if (*r).Method == "OPTIONS" {
 		return
 	}
-	db := db_adapter.Connect()
+	// if r.Method != "POST" {
+	// 	http.Error(w, "Method Not Supported", http.StatusMethodNotAllowed)
+	// 	return
+	// }
+	db := db.Connect()
 
 	var p LoginBodyType
 	json.NewDecoder(r.Body).Decode(&p)
@@ -53,14 +63,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		p.Username, p.hashedPassword()).Scan(&usrnm, &password)
 
 	fmt.Println("Username: ", usrnm, "Password: ", password)
+
 	if usrnm != "" && password != "" {
 		session, _ := Session(r)
 		session.Values["authenticated"] = true
 		session.Values["username"] = usrnm
 		// saves all sessions used during the current request
 		session.Save(r, w)
+		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte("Logged in successfully:" + usrnm))
 	} else {
+		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte("Wrong credentials"))
 	}
 }
@@ -68,6 +81,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 func Healthcheck(w http.ResponseWriter, r *http.Request) {
 	session, _ := Session(r)
 	authenticated := session.Values["authenticated"]
+
 	if authenticated != nil {
 		isAuthenticated := session.Values["authenticated"].(bool)
 		if isAuthenticated != false {
@@ -93,8 +107,10 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserCheck(w http.ResponseWriter, r *http.Request) {
+	setupCorsResponse(&w, r)
 	session, _ := Session(r)
 	authenticated := session.Values["authenticated"]
+
 	if authenticated != nil {
 		isAuthenticated := session.Values["authenticated"].(bool)
 		if isAuthenticated != false {
@@ -115,7 +131,6 @@ func UserCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 /* Api related controllers */
-
 func GetFile(w http.ResponseWriter, r *http.Request) {
 	// Setting url
 	url := ProxyUri(r, "get_file")

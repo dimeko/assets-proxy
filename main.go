@@ -8,7 +8,7 @@ import (
 
 	"github.com/master-assets-app/api"
 
-	"github.com/master-assets-app/db_adapter"
+	"github.com/master-assets-app/db"
 )
 
 const (
@@ -17,10 +17,8 @@ const (
 
 func main() {
 	fmt.Println("Starting server at port:", port)
-	db := db_adapter.Connect()
-	fmt.Println("Connected to db:")
+	db := db.Connect()
 	routeHandler := api.Routes()
-
 	httpServer := &http.Server{
 		Handler:      routeHandler,
 		Addr:         port,

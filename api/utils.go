@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/master-assets-app/db_adapter"
+	"github.com/master-assets-app/db"
 )
 
 type JsonResponse struct {
@@ -22,7 +22,7 @@ type JsonResponse struct {
 }
 
 func UsersWebsite(r *http.Request) string {
-	db := db_adapter.Connect()
+	db := db.Connect()
 	username := SessionUser(r)
 	fmt.Println(username)
 	var website string
@@ -55,7 +55,7 @@ func ProxyUri(r *http.Request, route string) string {
 }
 
 func UsersWebsiteAuth(r *http.Request, proxyReq *http.Request) {
-	db := db_adapter.Connect()
+	db := db.Connect()
 	username := SessionUser(r)
 	var auth_username string
 	var auth_password string

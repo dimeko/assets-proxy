@@ -2,11 +2,11 @@
   <div class="editor_container">
     <div class="editor">
       <div class="editor_header">
-        <router-link  :to="{ name: 'dashboard' }"
+        <router-link :to="{ name: 'dashboard' }"
           ><div>Dashboard</div></router-link
         >
       </div>
-      <div  class="editor_content">
+      <div class="editor_content">
         <div class="editor_file_management">
           <div class="editor_directories">
             <div class="editor_search_file_title">Search file</div>
@@ -84,7 +84,7 @@
 <script>
 import vueJsonEditor from "vue-json-editor";
 import axios from "axios";
-const BASE_API_URL = "/api/server/";
+
 export default {
   data() {
     return {
@@ -98,12 +98,14 @@ export default {
         msg: "demo of jsoneditor",
       },
       directories: [],
+      baseApiUrl: "/api/server/"
     };
   },
   components: {
     vueJsonEditor,
   },
   mounted() {
+    console.log("EDW")
     this.mapImageDirectory();
   },
   methods: {
@@ -116,33 +118,33 @@ export default {
       this.imagePreviewUrl = URL.createObjectURL(files[0]);
     },
     async fetchFile() {
-      const response = await axios.get(
-        `${BASE_API_URL}get-file?file_path=${this.fileName}`
-      );
-      this.json = response.data.body;
+      await axios
+        .get(`${this.baseApiUrl}get-file?file_path=${this.fileName}`)
+        .then((response) => {
+          this.json = response.data.body;
+        });
     },
     async mapImageDirectory() {
-      const url = `${BASE_API_URL}map-image-directory`;
-      const response = await axios.get(url);
-
-      this.directories = response.data.body;
+      const url = `${this.baseApiUrl}map-image-directory`;
+      await axios.get(url).then((response) => {
+        this.directories = response.data.body;
+      });
     },
     async uploadImage() {
-      const url = `${BASE_API_URL}upload-image`;
+      const url = `${this.baseApiUrl}upload-image`;
       let formData = new FormData();
       formData.append("image_file", this.imageFile);
       formData.append("category", this.imageDirectory);
-      console.log(this.imageDirectory, this.imageName);
-      const response = await axios.post(url, formData);
-      console.log(response)
+      await axios.post(url, formData).then(() => {});
     },
     async editDbFile() {
-      const url = `${BASE_API_URL}edit-db-file`;
-      const response = await axios.post(url, {
-        file_path: this.fileName,
-        data: this.json,
-      });
-      console.log(response)
+      const url = `${this.baseApiUrl}edit-db-file`;
+      await axios
+        .post(url, {
+          file_path: this.fileName,
+          data: this.json,
+        })
+        .then(() => {});
     },
   },
 };

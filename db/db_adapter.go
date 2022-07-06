@@ -1,4 +1,4 @@
-package db_adapter
+package db
 
 import (
 	"database/sql"
@@ -13,7 +13,7 @@ type DB struct {
 	*sql.DB
 }
 
-func Connect() *DB {
+func Connect() *sql.DB {
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("Error loading .env file")
@@ -22,13 +22,15 @@ func Connect() *DB {
 	db_user := os.Getenv("DOCK_MYSQL_USER")
 	db_pass := os.Getenv("DOCK_MYSQL_PASS")
 	db_database := os.Getenv("DOCK_MYSQL_DB")
+	db_port := os.Getenv("DOCK_MYSQL_PORT")
 
-	connection := db_user + ":" + db_pass + "@tcp(" + db_host + ")/" + db_database
+	connection := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_database
+
 	db, err := sql.Open("mysql", connection)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	return &DB{db}
+	return db
 }
