@@ -1,11 +1,11 @@
 <template>
   <div class="notifications_wrapper">
     <div v-show="visible" :class="bodyClass" class="notifications_toast">
-      <div>
+      <div class="notifications_toast_title">
         {{ title }}
       </div>
       <div>
-        {{ desription }}
+        {{ description }}
       </div>
     </div>
   </div>
@@ -21,14 +21,15 @@ export default {
     };
   },
   mounted() {
-    this.$root.on("notify", (title, description, bodyClass) => {
+    this.$root.$on("notify", ({title, description, bodyClass}) => {
+      console.log("Emited")
       this.title = title;
       this.description = description;
       this.bodyClass = bodyClass;
       this.visible = true;
       setTimeout(() => {
         this.visible = false;
-      }, 7000);
+      }, 5000);
     });
   },
 };

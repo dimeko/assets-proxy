@@ -12,8 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/master-assets-app/db"
 )
 
 type LoginBodyType struct {
@@ -42,27 +40,20 @@ func (l *LoginBodyType) hashedPassword() string {
 	return hex.EncodeToString(hash[:])
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (api *Api) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	setupCorsResponse(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
-	// if r.Method != "POST" {
-	// 	http.Error(w, "Method Not Supported", http.StatusMethodNotAllowed)
-	// 	return
-	// }
-	db := db.Connect()
 
 	var p LoginBodyType
 	json.NewDecoder(r.Body).Decode(&p)
 
 	var usrnm string
 	var password string
-	fmt.Println("Username: ", p.Username, "Password: ", p.hashedPassword())
-	db.QueryRow("SELECT username, password FROM users WHERE username=? AND password=?",
-		p.Username, p.hashedPassword()).Scan(&usrnm, &password)
 
-	fmt.Println("Username: ", usrnm, "Password: ", password)
+	api.Db.Conn.QueryRow("SELECT username, password FROM users WHERE username=? AND password=?",
+		p.Username, p.hashedPassword()).Scan(&usrnm, &password)
 
 	if usrnm != "" && password != "" {
 		session, _ := Session(r)
@@ -70,15 +61,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		session.Values["username"] = usrnm
 		// saves all sessions used during the current request
 		session.Save(r, w)
+		apilogger.Info(fmt.Sprintf("User %s just logger in", p.Username))
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte("Logged in successfully:" + usrnm))
 	} else {
+		apilogger.Info(fmt.Sprint("User just failed to log in"))
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte("Wrong credentials"))
 	}
 }
 
-func Healthcheck(w http.ResponseWriter, r *http.Request) {
+func (api *Api) Healthcheck(w http.ResponseWriter, r *http.Request) {
 	session, _ := Session(r)
 	authenticated := session.Values["authenticated"]
 
@@ -96,17 +89,20 @@ func Healthcheck(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+func (api *Api) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Get registers and returns a session for the given name and session store
 	// session.id is the name of the cookie that will be stored in the client's browser
-	session, _ := Session(r)
+	session, err := Session(r)
+	if err != nil {
+		apilogger.Error(fmt.Sprint("User could not log out."))
+	}
 	// Set the authenticated value on the session to false
 	session.Values["authenticated"] = false
 	session.Save(r, w)
 	w.Write([]byte("Logout Successful"))
 }
 
-func UserCheck(w http.ResponseWriter, r *http.Request) {
+func (api *Api) UserCheck(w http.ResponseWriter, r *http.Request) {
 	setupCorsResponse(&w, r)
 	session, _ := Session(r)
 	authenticated := session.Values["authenticated"]
@@ -131,64 +127,64 @@ func UserCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 /* Api related controllers */
-func GetFile(w http.ResponseWriter, r *http.Request) {
+func (api *Api) GetFile(w http.ResponseWriter, r *http.Request) {
 	// Setting url
 	url := ProxyUri(r, "get_file")
 	// Initiallizing request parameters
 	fileName := r.URL.Query()["file_path"]
 	req := GetRequest(url, map[string]string{"file_path": fileName[0]})
 	// Setting basic auth
-	UsersWebsiteAuth(r, req)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	if err != nil {
-		panic(err.Error())
+		apilogger.Error(fmt.Sprintf("Could not fetch file %s.", fileName))
 	}
 	HttpResponder(w, response)
 }
 
-func MapImgDirectory(w http.ResponseWriter, r *http.Request) {
+func (api *Api) MapImgDirectory(w http.ResponseWriter, r *http.Request) {
 	url := ProxyUri(r, "img_directory")
 	req := GetRequest(url, nil)
-	UsersWebsiteAuth(r, req)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	if err != nil {
-		panic(err.Error())
+		apilogger.Error(fmt.Sprint("Could not map image directory."))
 	}
 	HttpResponder(w, response)
 }
 
-func MapImgFilesDirectory(w http.ResponseWriter, r *http.Request) {
+func (api *Api) MapImgFilesDirectory(w http.ResponseWriter, r *http.Request) {
 	url := ProxyUri(r, "img_files_directory")
 	req := GetRequest(url, nil)
-	UsersWebsiteAuth(r, req)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	if err != nil {
-		panic(err.Error())
+		apilogger.Error(fmt.Sprint("Could not map image files directory."))
 	}
 	HttpResponder(w, response)
 }
 
-func MapDBDirectory(w http.ResponseWriter, r *http.Request) {
+func (api *Api) MapDBDirectory(w http.ResponseWriter, r *http.Request) {
 	url := ProxyUri(r, "db_directory")
 	req := GetRequest(url, nil)
-	UsersWebsiteAuth(r, req)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	if err != nil {
-		panic(err.Error())
+		apilogger.Error(fmt.Sprint("Could not map db directory."))
 	}
 	HttpResponder(w, response)
 }
 
-func ImageUpload(w http.ResponseWriter, r *http.Request) {
+func (api *Api) ImageUpload(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		apilogger.Error(fmt.Sprint("Error: too big file"))
 		http.Error(w, "The uploaded file is too big. Please choose an file that's less than 10MB in size", http.StatusBadRequest)
 		return
 	}
 
 	file, handler, err := r.FormFile("image_file")
 	if err != nil {
-		fmt.Println("Error Retrieving the File")
-		fmt.Println(err)
+		apilogger.Error(fmt.Sprint("Could not find file."))
 		return
 	}
 
@@ -220,7 +216,8 @@ func ImageUpload(w http.ResponseWriter, r *http.Request) {
 	newfile, ferr := os.Open(hashedImgName)
 
 	if ferr != nil {
-		panic(ferr)
+		apilogger.Error(fmt.Sprint("Could not open tmp file."))
+		return
 	}
 	_, err = io.Copy(fw, newfile)
 	if err != nil {
@@ -230,7 +227,7 @@ func ImageUpload(w http.ResponseWriter, r *http.Request) {
 	writer.Close()
 
 	req := PostRequest(ProxyUri(r, "upload_img"), bytes.NewReader(body.Bytes()))
-	UsersWebsiteAuth(r, req)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
 
 	defer file.Close()
 
@@ -239,7 +236,7 @@ func ImageUpload(w http.ResponseWriter, r *http.Request) {
 	HttpResponder(w, response)
 }
 
-func EditDbFile(w http.ResponseWriter, r *http.Request) {
+func (api *Api) EditDbFile(w http.ResponseWriter, r *http.Request) {
 	var data EditDbFileType
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -255,7 +252,7 @@ func EditDbFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req := PostRequest(ProxyUri(r, "edit_file"), &buf)
-	UsersWebsiteAuth(r, req)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	HttpResponder(w, response)
 }

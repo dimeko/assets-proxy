@@ -10,9 +10,15 @@ import (
 )
 
 type DB struct {
-	*sql.DB
+	Conn *sql.DB
 }
 
+func New() *DB {
+	db := &DB{
+		Conn: Connect(),
+	}
+	return db
+}
 func Connect() *sql.DB {
 	err := godotenv.Load(".env")
 	if err != nil {

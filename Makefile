@@ -1,4 +1,5 @@
 #!make
+.PHONY: run build-client migrate migrate-down
 include .env
 
 
@@ -17,7 +18,7 @@ run:
 ifeq ($(wildcard $(CLIENT_BUILD_DIR)/.*),)
 	npm run --prefix $(CLIENT_DIR) build
 endif
-	go run main.go
+	go run main.go server
 
 build-client:
 	npm run --prefix $(CLIENT_DIR) build

@@ -1,5 +1,5 @@
 @import "./variables.scss";
-@import "./navbar.scss";
+@import "./components.scss";
 @import "./login.scss";
 @import "./dashboard.scss";
 @import "./editor.scss";
@@ -22,3 +22,12 @@ a {
   text-decoration: none;
   color: black;
 }
+
+.success_toast {
+  background-color: #68ba82c3;
+}
+
+.error_toast {
+  background-color: #db6c4dd2;
+}
+

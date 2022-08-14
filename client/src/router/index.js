@@ -51,7 +51,7 @@ router.beforeEach((to, from, next) => {
     }
 
     middlewares[0]({
-        ...args,
+        ...args, allMiddlewares: middlewares, currentIndex: 0
     })
 })
 

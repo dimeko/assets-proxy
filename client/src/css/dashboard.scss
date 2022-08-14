@@ -16,18 +16,42 @@
     .dashboard_header {
       font-weight: 700;
       display: flex;
-      justify-content: start;
+      justify-content: space-between;
+      .logout_button {
+        display: flex;
+        justify-content: start;
+        button {
+          font-family: Jura, Roboto, monospace;
+          background-color: $primary-color;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 5px;
+        }
+      }
     }
     .dashboard_editor {
       margin-top: 18px;
       display: flex;
       .jsoneditor {
         border-radius: $border-radius-generic;
-  
+
         font-family: Jura, Roboto, monospace;
       }
       .jsoneditor-btns {
         display: none;
+      }
+
+      .jsoneditor-menu {
+        background-color: $primary-color !important;
+      }
+      .jsoneditor-search {
+        display: none;
+      }
+      .jsoneditor-btns {
+        button {
+          background-color: $primary-color;
+        }
       }
     }
   }
