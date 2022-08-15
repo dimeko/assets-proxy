@@ -104,7 +104,7 @@ func HttpResponder(w http.ResponseWriter, resp *http.Response) {
 	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
 
 	if err != nil {
-		panic(err.Error())
+		apilogger.Error(fmt.Sprintf("Could not decode response: %s", err))
 	}
 
 	apilogger.Info(fmt.Sprintf("Method: HttpResponder. Response code: %d", resp.StatusCode))
