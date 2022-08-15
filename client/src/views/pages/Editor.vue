@@ -98,14 +98,13 @@ export default {
         msg: "demo of jsoneditor",
       },
       directories: [],
-      baseApiUrl: "/api/server/"
+      baseApiUrl: "/api/server/",
     };
   },
   components: {
     vueJsonEditor,
   },
   mounted() {
-    console.log("EDW")
     this.mapImageDirectory();
   },
   methods: {
@@ -122,6 +121,13 @@ export default {
         .get(`${this.baseApiUrl}get-file?file_path=${this.fileName}`)
         .then((response) => {
           this.json = response.data.body;
+        })
+        .catch(() => {
+          this.$root.$emit("notify", {
+            title: "Error",
+            description: "File not found!",
+            bodyClass: "error_toast",
+          });
         });
     },
     async mapImageDirectory() {
@@ -135,7 +141,22 @@ export default {
       let formData = new FormData();
       formData.append("image_file", this.imageFile);
       formData.append("category", this.imageDirectory);
-      await axios.post(url, formData).then(() => {});
+      await axios
+        .post(url, formData)
+        .then(() => {
+          this.$root.$emit("notify", {
+            title: "Success",
+            description: "The image was successfully uploaded",
+            bodyClass: "success_toast",
+          });
+        })
+        .catch(() => {
+          this.$root.$emit("notify", {
+            title: "Error",
+            description: "Error while uploading the image!",
+            bodyClass: "error_toast",
+          });
+        });
     },
     async editDbFile() {
       const url = `${this.baseApiUrl}edit-db-file`;
@@ -144,7 +165,20 @@ export default {
           file_path: this.fileName,
           data: this.json,
         })
-        .then(() => {});
+        .then(() => {
+          this.$root.$emit("notify", {
+            title: "Success",
+            description: "The file was successfully updated",
+            bodyClass: "success_toast",
+          });
+        })
+        .catch(() => {
+          this.$root.$emit("notify", {
+            title: "Error",
+            description: "Error while updating the file!",
+            bodyClass: "error_toast",
+          });
+        });
     },
   },
 };

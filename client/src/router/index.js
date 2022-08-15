@@ -13,7 +13,6 @@ const routes = [
         meta: {
             middlewares: null
         }
-
     },
     {
         component: Dashboard,
@@ -36,22 +35,21 @@ const routes = [
 Vue.use(VueRouter);
 
 const router = new VueRouter({
-    // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
     mode: "history",
-    routes, // short for `routes: routes`
+    routes,
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.name === null){console.log("Redirect from guard"); next({ name: "dashboard" })}
+    if (to.name === null) { console.log("Redirect from guard"); next({ name: "dashboard" }) }
     const middlewares = to.meta.middlewares
     const args = { to, from, next }
-    // return next()
+
     if (!middlewares) {
         return next();
     }
 
     middlewares[0]({
-        ...args,
+        ...args, allMiddlewares: middlewares, currentIndex: 0
     })
 })
 

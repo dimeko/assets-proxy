@@ -3,17 +3,17 @@ package api
 import (
 	"crypto/md5"
 	"crypto/tls"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/master-assets-app/db"
+	"github.com/dimeko/assets-proxy/db"
 )
 
 type JsonResponse struct {
@@ -54,15 +54,12 @@ func ProxyUri(r *http.Request, route string) string {
 	return strings.Join([]string{"https://", UsersWebsite(r), proxyPath}, "")
 }
 
-func UsersWebsiteAuth(r *http.Request, proxyReq *http.Request) {
-	db := db.Connect()
+func UsersWebsiteAuth(r *http.Request, proxyReq *http.Request, db *sql.DB) {
 	username := SessionUser(r)
 	var auth_username string
 	var auth_password string
 	db.QueryRow("SELECT website_auth_username, website_auth_password FROM users WHERE username=?",
 		username).Scan(&auth_username, &auth_password)
-
-	log.Println("Setting basic_auth credentials:", auth_username, " , ", auth_password)
 	proxyReq.SetBasicAuth(auth_username, auth_password)
 }
 
@@ -84,25 +81,21 @@ func HttpClient() *http.Client {
 func PostRequest(url string, payload io.Reader) *http.Request {
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
-		panic(err.Error())
+		apilogger.Error(fmt.Sprintf("Error making POST request. Error: %s", err))
 	}
-
-	log.Println("Method: PostRequest", req.URL)
-
 	return req
 }
 
 func GetRequest(url string, query map[string]string) *http.Request {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		panic(err.Error())
+		apilogger.Error(fmt.Sprintf("Error making GET request. Error: %s", err))
 	}
 	q := req.URL.Query()
 	for key, el := range query {
 		q.Add(key, el)
 	}
 	req.URL.RawQuery = q.Encode()
-	log.Println("Method: GetRequest", req.URL)
 
 	return req
 }
@@ -114,13 +107,12 @@ func HttpResponder(w http.ResponseWriter, resp *http.Response) {
 		panic(err.Error())
 	}
 
-	log.Println("Method: HttpResponder. Response body:", string(body))
-	log.Println("Method: HttpResponder. Response code:", resp.StatusCode)
+	apilogger.Info(fmt.Sprintf("Method: HttpResponder. Response code: %d", resp.StatusCode))
 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		var jsonObResponse JsonResponse
 		if err := json.Unmarshal([]byte(string(body)), &jsonObResponse); err != nil {
-			log.Fatal(err)
+			apilogger.Fatal("Could not decode response.")
 		}
 		json.NewEncoder(w).Encode(jsonObResponse)
 	} else {
