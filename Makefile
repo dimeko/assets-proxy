@@ -13,7 +13,7 @@ MYSQL_HOST = localhost
 MYSQL_PORT = ${DOCK_MYSQL_PORT}
 
 run:
-	docker-compose up
+	docker-compose up -d
 ifeq ($(wildcard $(CLIENT_BUILD_DIR)/.*),)
 	npm run --prefix $(CLIENT_DIR) build
 endif
