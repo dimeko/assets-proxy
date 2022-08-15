@@ -2,7 +2,6 @@
 .PHONY: run build-client migrate migrate-down
 include .env
 
-
 CLIENT_DIR = ./client
 CLIENT_BUILD_DIR = ./client/dist
 DB_DRIVER=mysql

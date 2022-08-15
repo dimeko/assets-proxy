@@ -22,7 +22,6 @@ export default {
   },
   mounted() {
     this.$root.$on("notify", ({title, description, bodyClass}) => {
-      console.log("Emited")
       this.title = title;
       this.description = description;
       this.bodyClass = bodyClass;
