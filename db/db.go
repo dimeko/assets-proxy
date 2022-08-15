@@ -2,11 +2,10 @@ package db
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 type DB struct {
@@ -20,18 +19,14 @@ func New() *DB {
 	return db
 }
 func Connect() *sql.DB {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Println("Error loading .env file")
-	}
-	db_host := os.Getenv("DOCK_MYSQL_HOST")
-	db_user := os.Getenv("DOCK_MYSQL_USER")
-	db_pass := os.Getenv("DOCK_MYSQL_PASS")
-	db_database := os.Getenv("DOCK_MYSQL_DB")
-	db_port := os.Getenv("DOCK_MYSQL_PORT")
+	db_host := os.Getenv("POSTGRES_HOST")
+	db_user := os.Getenv("POSTGRES_USER")
+	db_pass := os.Getenv("POSTGRES_PASSWORD")
+	db_database := os.Getenv("POSTGRES_DB")
+	db_port := "3306" //os.Getenv("POSTGRES_PORT")
 
 	connection := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_database
-
+	fmt.Println(connection)
 	db, err := sql.Open("mysql", connection)
 
 	if err != nil {

@@ -1,5 +1,23 @@
 version: "3.1"
 services:
+  app:
+    build: .
+    image: assets-proxy
+    container_name: assets-proxy-app
+    restart: "always"
+    environment:
+      APP_PORT: "${APP_PORT}"
+      POSTGRES_USER: "${DOCK_MYSQL_USER}"
+      POSTGRES_PASSWORD: "${DOCK_MYSQL_PASS}"
+      POSTGRES_DB: "${DOCK_MYSQL_DB}"
+      POSTGRES_PORT: "3306"
+      POSTGRES_HOST: "${DOCK_MYSQL_HOST}"
+    depends_on:
+      - mysql
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    volumes:
+      - ./:/app
   mysql:
     image: "mysql/mysql-server:5.7.12"
     restart: "always"
@@ -10,8 +28,7 @@ services:
       MYSQL_PASSWORD: "${DOCK_MYSQL_PASS}"
       MYSQL_USER: "${DOCK_MYSQL_USER}"
       MYSQL_DATABASE: "${DOCK_MYSQL_DB}"
-    ports:
-      - "${DOCK_MYSQL_PORT}:3306"
+    ports: ["${DOCK_MYSQL_PORT}:3306"]
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "${DOCK_MYSQL_HOST}" ,"-p${DOCK_MYSQL_PASS}"]
       timeout: 20s
