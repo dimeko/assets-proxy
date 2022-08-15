@@ -29,7 +29,12 @@ services:
       MYSQL_USER: "${DOCK_MYSQL_USER}"
       MYSQL_DATABASE: "${DOCK_MYSQL_DB}"
     ports: ["${DOCK_MYSQL_PORT}:3306"]
+    volumes:
+      - assets-proxy-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "${DOCK_MYSQL_HOST}" ,"-p${DOCK_MYSQL_PASS}"]
       timeout: 20s
       retries: 10
+volumes:
+  assets-proxy-data:
+    external: false
