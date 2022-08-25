@@ -28,6 +28,7 @@
                   class="form-control"
                   :required="true"
                   v-model="imageDirectory"
+                  @change="fetchSubdirImages"
                 >
                   <option selected>Choose directory</option>
                   <option
@@ -65,6 +66,27 @@
               <button @click="uploadImage">Upload image</button>
             </div>
           </div>
+          <div
+            v-if="directoryImages && directoryImages.length > 0"
+            class="editor_directory_images"
+          >
+            <div class="editor_directory_images_title">
+              Currenct directory images
+            </div>
+            <div class="editor_directory_image_content">
+              <div
+                class="editor_directory_image_wrapper"
+                v-for="image in directoryImages"
+                :key="image"
+              >
+                <p class="editor_directory_image_name">Image name: {{ image }}</p>
+                <img
+                  class="editor_directory_image"
+                  :src="`${baseApiUrl}image/${imageDirectory}/${image}`"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="editor_editor">
@@ -98,6 +120,7 @@ export default {
         msg: "demo of jsoneditor",
       },
       directories: [],
+      directoryImages: [],
       baseApiUrl: "/api/server/",
     };
   },
@@ -108,11 +131,7 @@ export default {
     this.mapImageDirectory();
   },
   methods: {
-    onJsonChange(value) {
-      console.log("value:", value);
-    },
     onImageChange(name, files) {
-      console.log(files);
       this.imageFile = files[0];
       this.imagePreviewUrl = URL.createObjectURL(files[0]);
     },
@@ -179,6 +198,13 @@ export default {
             bodyClass: "error_toast",
           });
         });
+    },
+    async fetchSubdirImages() {
+      console.log("Fetching");
+      const url = `${this.baseApiUrl}map-image-directory?sub_dir=${this.imageDirectory}`;
+      await axios.get(url).then((response) => {
+        this.directoryImages = response.data.body;
+      });
     },
   },
 };

@@ -12,8 +12,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/dimeko/assets-proxy/db"
 )
 
 type JsonResponse struct {
@@ -21,10 +19,8 @@ type JsonResponse struct {
 	Body   json.RawMessage `json:"body"`
 }
 
-func UsersWebsite(r *http.Request) string {
-	db := db.Connect()
+func UsersWebsite(r *http.Request, db *sql.DB) string {
 	username := SessionUser(r)
-	fmt.Println(username)
 	var website string
 	db.QueryRow("SELECT website FROM users WHERE username=?",
 		username).Scan(&website)
@@ -32,7 +28,7 @@ func UsersWebsite(r *http.Request) string {
 	return website
 }
 
-func ProxyUri(r *http.Request, route string) string {
+func ProxyUri(r *http.Request, route string, db *sql.DB) string {
 	var proxyPath string
 	switch route {
 	case "get_file":
@@ -47,11 +43,13 @@ func ProxyUri(r *http.Request, route string) string {
 		proxyPath = "/server/upload_image.php"
 	case "edit_file":
 		proxyPath = "/server/edit_file.php"
+	case "image":
+		proxyPath = "/images"
 	default:
 		proxyPath = "/server/get_file.php"
 	}
 
-	return strings.Join([]string{"https://", UsersWebsite(r), proxyPath}, "")
+	return strings.Join([]string{"http://", UsersWebsite(r, db), proxyPath}, "")
 }
 
 func UsersWebsiteAuth(r *http.Request, proxyReq *http.Request, db *sql.DB) {
@@ -79,6 +77,7 @@ func HttpClient() *http.Client {
 }
 
 func PostRequest(url string, payload io.Reader) *http.Request {
+	apilogger.Info(fmt.Sprintf("POST request to: %s", url))
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		apilogger.Error(fmt.Sprintf("Error making POST request. Error: %s", err))
@@ -87,6 +86,7 @@ func PostRequest(url string, payload io.Reader) *http.Request {
 }
 
 func GetRequest(url string, query map[string]string) *http.Request {
+	apilogger.Info(fmt.Sprintf("GET request to: %s", url))
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		apilogger.Error(fmt.Sprintf("Error making GET request. Error: %s", err))
@@ -100,7 +100,7 @@ func GetRequest(url string, query map[string]string) *http.Request {
 	return req
 }
 
-func HttpResponder(w http.ResponseWriter, resp *http.Response) {
+func HttpResponder(w http.ResponseWriter, resp *http.Response, responseType string) {
 	body, err := ioutil.ReadAll(resp.Body) // response body is []byte
 
 	if err != nil {
@@ -110,11 +110,19 @@ func HttpResponder(w http.ResponseWriter, resp *http.Response) {
 	apilogger.Info(fmt.Sprintf("Method: HttpResponder. Response code: %d", resp.StatusCode))
 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		var jsonObResponse JsonResponse
-		if err := json.Unmarshal([]byte(string(body)), &jsonObResponse); err != nil {
-			apilogger.Fatal("Could not decode response.")
+		if responseType == "image" {
+			w.Header().Set("Content-Type", "application/octet-stream")
+			if err != nil {
+				apilogger.Fatal(fmt.Sprintf("Could not decode %s response.", responseType))
+			}
+			w.Write(body)
+		} else {
+			var jsonObResponse JsonResponse
+			if err := json.Unmarshal([]byte(string(body)), &jsonObResponse); err != nil {
+				apilogger.Fatal(fmt.Sprintf("Could not decode %s response.", responseType))
+			}
+			json.NewEncoder(w).Encode(jsonObResponse)
 		}
-		json.NewEncoder(w).Encode(jsonObResponse)
 	} else {
 		http.Error(w, "Not found", resp.StatusCode)
 		json.NewEncoder(w).Encode(ResponseType{Result: "FAILURE", Body: string("message: Error occured")})

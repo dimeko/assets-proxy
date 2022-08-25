@@ -40,7 +40,7 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.name === null) { console.log("Redirect from guard"); next({ name: "dashboard" }) }
+    if (to.name === null) { next({ name: "dashboard" }) }
     const middlewares = to.meta.middlewares
     const args = { to, from, next }
 

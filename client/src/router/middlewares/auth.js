@@ -14,13 +14,8 @@ export default async function auth({ to, from, next, allMiddlewares, currentInde
             }  
         }
     }).catch((error) => {
-        console.log(error.response)
-
         if (error.response.status !== 200) {
-            console.log(from)
             if (from.name !== 'login' && to.name !== 'login') {
-                console.log("REdirect stin login")
-
                 next({ path: "/admin/login" })
             }
         }

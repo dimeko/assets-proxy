@@ -12,6 +12,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 type LoginBodyType struct {
@@ -129,7 +131,7 @@ func (api *Api) UserCheck(w http.ResponseWriter, r *http.Request) {
 /* Api related controllers */
 func (api *Api) GetFile(w http.ResponseWriter, r *http.Request) {
 	// Setting url
-	url := ProxyUri(r, "get_file")
+	url := ProxyUri(r, "get_file", api.Db.Conn)
 	// Initiallizing request parameters
 	fileName := r.URL.Query()["file_path"]
 	req := GetRequest(url, map[string]string{"file_path": fileName[0]})
@@ -139,40 +141,41 @@ func (api *Api) GetFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		apilogger.Error(fmt.Sprintf("Could not fetch file %s.", fileName))
 	}
-	HttpResponder(w, response)
+	HttpResponder(w, response, "json")
 }
 
 func (api *Api) MapImgDirectory(w http.ResponseWriter, r *http.Request) {
-	url := ProxyUri(r, "img_directory")
-	req := GetRequest(url, nil)
+	url := ProxyUri(r, "img_directory", api.Db.Conn)
+	subDir := r.URL.Query().Get("sub_dir")
+	req := GetRequest(url, map[string]string{"sub_dir": subDir})
 	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	if err != nil {
 		apilogger.Error(fmt.Sprint("Could not map image directory."))
 	}
-	HttpResponder(w, response)
+	HttpResponder(w, response, "json")
 }
 
 func (api *Api) MapImgFilesDirectory(w http.ResponseWriter, r *http.Request) {
-	url := ProxyUri(r, "img_files_directory")
+	url := ProxyUri(r, "img_files_directory", api.Db.Conn)
 	req := GetRequest(url, nil)
 	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	if err != nil {
 		apilogger.Error(fmt.Sprint("Could not map image files directory."))
 	}
-	HttpResponder(w, response)
+	HttpResponder(w, response, "json")
 }
 
 func (api *Api) MapDBDirectory(w http.ResponseWriter, r *http.Request) {
-	url := ProxyUri(r, "db_directory")
+	url := ProxyUri(r, "db_directory", api.Db.Conn)
 	req := GetRequest(url, nil)
 	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	if err != nil {
 		apilogger.Error(fmt.Sprint("Could not map db directory."))
 	}
-	HttpResponder(w, response)
+	HttpResponder(w, response, "json")
 }
 
 func (api *Api) ImageUpload(w http.ResponseWriter, r *http.Request) {
@@ -226,14 +229,14 @@ func (api *Api) ImageUpload(w http.ResponseWriter, r *http.Request) {
 
 	writer.Close()
 
-	req := PostRequest(ProxyUri(r, "upload_img"), bytes.NewReader(body.Bytes()))
+	req := PostRequest(ProxyUri(r, "upload_img", api.Db.Conn), bytes.NewReader(body.Bytes()))
 	UsersWebsiteAuth(r, req, api.Db.Conn)
 
 	defer file.Close()
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	response, err := HttpClient().Do(req)
-	HttpResponder(w, response)
+	HttpResponder(w, response, "json")
 }
 
 func (api *Api) EditDbFile(w http.ResponseWriter, r *http.Request) {
@@ -251,8 +254,22 @@ func (api *Api) EditDbFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := PostRequest(ProxyUri(r, "edit_file"), &buf)
+	req := PostRequest(ProxyUri(r, "edit_file", api.Db.Conn), &buf)
 	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
-	HttpResponder(w, response)
+	HttpResponder(w, response, "json")
+}
+
+func (api *Api) GetImage(w http.ResponseWriter, r *http.Request) {
+	directory := mux.Vars(r)["directory"]
+	imageName := mux.Vars(r)["image"]
+	url := ProxyUri(r, "image", api.Db.Conn)
+	imageUrl := url + "/" + directory + "/" + imageName
+	req := GetRequest(imageUrl, nil)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
+	response, err := HttpClient().Do(req)
+	if err != nil {
+		apilogger.Error(fmt.Sprint("Could not find image."))
+	}
+	HttpResponder(w, response, "image")
 }

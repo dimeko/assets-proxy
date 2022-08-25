@@ -63,6 +63,7 @@ func routes(router *mux.Router, api *Api, logger *zap.Logger) *mux.Router {
 	s.HandleFunc("/map-db-directory", api.MapDBDirectory).Methods("GET")
 	s.HandleFunc("/upload-image", api.ImageUpload).Methods("POST")
 	s.HandleFunc("/edit-db-file", api.EditDbFile).Methods("POST")
+	s.HandleFunc("/image/{directory}/{image}", api.GetImage).Methods("GET")
 
 	spa := SpaHandler{staticPath: "./client/dist", indexPath: "index.html"}
 

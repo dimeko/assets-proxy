@@ -16,8 +16,14 @@
     padding: 16px;
     .jsoneditor {
       border-radius: $border-radius-generic;
-
+      max-height: 100vh;
+      overflow-y: scroll;
       font-family: Jura, Roboto, monospace;
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+    }
+    .jsoneditor::-webkit-scrollbar {
+      display: none;
     }
     .jsoneditor-btns {
       button {
@@ -157,6 +163,38 @@
               border: none;
               padding: 5px 10px;
               border-radius: 5px;
+            }
+          }
+        }
+
+        .editor_directory_images {
+          margin-top: 24px;
+          width: 100%;
+
+          .editor_directory_images_title {
+            display: flex;
+            justify-content: start;
+            margin-bottom: 12px;
+            font-weight: 700;
+          }
+          .editor_directory_image_content {
+            display: grid;
+            grid-template-columns: repeat(2, 0.3fr);
+            grid-gap: 12px;
+            .editor_directory_image_wrapper {
+              max-width: 300px;
+              max-height: 300px;
+              .editor_directory_image_name {
+                position: relative;
+                font-size: 8px;
+              }
+              // .editor_directory_image_name:hover {
+              //   visibility: visible;
+              // }
+              .editor_directory_image {
+                max-width: 120px;
+                max-height: 120px;
+              }
             }
           }
         }
