@@ -112,9 +112,6 @@ func HttpResponder(w http.ResponseWriter, resp *http.Response, responseType stri
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		if responseType == "image" {
 			w.Header().Set("Content-Type", "application/octet-stream")
-			if err != nil {
-				apilogger.Fatal(fmt.Sprintf("Could not decode %s response.", responseType))
-			}
 			w.Write(body)
 		} else {
 			var jsonObResponse JsonResponse
