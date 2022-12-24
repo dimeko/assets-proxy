@@ -17,5 +17,3 @@ Build vue bundle
 Run development client server
 
 ```make run-dev-client```
-
-

@@ -49,7 +49,7 @@ func ProxyUri(r *http.Request, route string, db *sql.DB) string {
 		proxyPath = "/server/get_file.php"
 	}
 
-	return strings.Join([]string{"http://", UsersWebsite(r, db), proxyPath}, "")
+	return strings.Join([]string{"https://", UsersWebsite(r, db), proxyPath}, "")
 }
 
 func UsersWebsiteAuth(r *http.Request, proxyReq *http.Request, db *sql.DB) {

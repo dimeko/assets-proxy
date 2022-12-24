@@ -29,3 +29,6 @@ migrate:
 
 migrate-down:
 	migrate -path db/migrations -database "$(DB_DRIVER)://$(MYSQL_USER):$(MYSQL_PASS)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DB)" -verbose down
+
+seed:
+	docker exec -i $(DOCK_MYSQL_CONTAINER_NAME) mysql -u $(MYSQL_USER) -p$(MYSQL_PASS) $(DOCK_MYSQL_DB) < $(shell pwd)/development/user_seeds.sql
