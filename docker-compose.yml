@@ -7,11 +7,11 @@ services:
     restart: "always"
     environment:
       APP_PORT: "${APP_PORT}"
-      POSTGRES_USER: "${DOCK_MYSQL_USER}"
-      POSTGRES_PASSWORD: "${DOCK_MYSQL_PASS}"
-      POSTGRES_DB: "${DOCK_MYSQL_DB}"
-      POSTGRES_PORT: "3306"
-      POSTGRES_HOST: "${DOCK_MYSQL_HOST}"
+      MYSQL_USER: "${DOCK_MYSQL_USER}"
+      MYSQL_PASSWORD: "${DOCK_MYSQL_PASS}"
+      MYSQL_DB: "${DOCK_MYSQL_DB}"
+      MYSQL_PORT: "3306"
+      MYSQL_HOST: "${DOCK_MYSQL_HOST}"
     depends_on:
       - mysql
     ports:

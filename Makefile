@@ -1,5 +1,5 @@
 #!make
-.PHONY: run build-client migrate migrate-down
+.PHONY: run build-client migrate migrate-down build-prod
 include .env
 
 CLIENT_DIR = ./client
@@ -32,3 +32,6 @@ migrate-down:
 
 seed:
 	docker exec -i $(DOCK_MYSQL_CONTAINER_NAME) mysql -u $(MYSQL_USER) -p$(MYSQL_PASS) $(DOCK_MYSQL_DB) < $(shell pwd)/development/user_seeds.sql
+
+build-prod:
+	env GOOS=linux GOARCH=arm go build -o main main.go 
