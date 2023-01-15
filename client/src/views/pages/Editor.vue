@@ -18,6 +18,26 @@
             <div class="editor_button">
               <button @click="fetchFile">Search file</button>
             </div>
+
+            <div class="editor_search_file_title" style="margin-top: 18px;">Create file</div>
+            <div class="editor_file_search">
+              <label for="file">File name</label
+              ><input type="text" v-model="createFileName" />
+            </div>
+
+            <div class="editor_file_search" style="margin-top: 10px;">
+              <label for="file">File subfolder</label
+              ><input type="text" v-model="createSubfolder" />
+            </div>
+
+            <div class="editor_file_search" style="margin-top: 10px;">
+              <label for="file">Images subfolder</label
+              ><input type="text" v-model="createSubfolderImages" />
+            </div>
+
+            <div class="editor_button">
+              <button @click="createFile">Create file</button>
+            </div>
           </div>
           <div class="editor_image_upload">
             <form enctype="multipart/form-data">
@@ -122,6 +142,9 @@ export default {
       directories: [],
       directoryImages: [],
       baseApiUrl: "/api/server/",
+      createFileName: "",
+      createSubfolder: "",
+      createSubfolderImages: ""
     };
   },
   components: {
@@ -200,12 +223,37 @@ export default {
         });
     },
     async fetchSubdirImages() {
-      console.log("Fetching");
       const url = `${this.baseApiUrl}map-image-directory?sub_dir=${this.imageDirectory}`;
       await axios.get(url).then((response) => {
         this.directoryImages = response.data.body;
       });
     },
+    async createFile() {
+      const url = `${this.baseApiUrl}create-file`;
+      this.createFileName = this.createFileName[0] !== "/" ? "/" + this.createFileName : this.createFileName
+      this.createSubfolder = this.createSubfolder[0] !== "/" ? "/" + this.createSubfolder : this.createSubfolder
+      this.createSubfolderImages = this.createSubfolderImages[0] !== "/" ? "/" + this.createSubfolderImages : this.createSubfolderImages
+
+      await axios.post(url, {
+        file_name: this.createFileName,
+        subfolder: this.createSubfolder,
+        img_subfolder: this.createSubfolderImages,
+        data: {}
+      }).then(() => {
+          this.$root.$emit("notify", {
+            title: "Success",
+            description: "The file was successfully created",
+            bodyClass: "success_toast",
+          });
+        })
+        .catch(() => {
+          this.$root.$emit("notify", {
+            title: "Error",
+            description: "Error while creating file!",
+            bodyClass: "error_toast",
+          });
+        });
+    }
   },
 };
 </script>

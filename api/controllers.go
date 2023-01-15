@@ -31,6 +31,13 @@ type EditDbFileType struct {
 	Data      json.RawMessage `json:"data"`
 }
 
+type CreateFileType struct {
+	File_name     string          `json:"file_name"`
+	Subfolder     string          `json:"subfolder"`
+	Img_subfolder string          `json:"img_subfolder"`
+	Data          json.RawMessage `json:"data"`
+}
+
 func setupCorsResponse(w *http.ResponseWriter, req *http.Request) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
@@ -255,6 +262,28 @@ func (api *Api) EditDbFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	req := PostRequest(ProxyUri(r, "edit_file", api.Db.Conn), &buf)
+	UsersWebsiteAuth(r, req, api.Db.Conn)
+	response, err := HttpClient().Do(req)
+	HttpResponder(w, response, "json")
+}
+
+func (api *Api) CreateFile(w http.ResponseWriter, r *http.Request) {
+	var data CreateFileType
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var buf bytes.Buffer
+	err = json.NewEncoder(&buf).Encode(data)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	req := PostRequest(ProxyUri(r, "create_file", api.Db.Conn), &buf)
 	UsersWebsiteAuth(r, req, api.Db.Conn)
 	response, err := HttpClient().Do(req)
 	HttpResponder(w, response, "json")

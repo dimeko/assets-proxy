@@ -33,6 +33,8 @@ func ProxyUri(r *http.Request, route string, db *sql.DB) string {
 	switch route {
 	case "get_file":
 		proxyPath = "/server/get_file.php"
+	case "create_file":
+		proxyPath = "/server/create_file.php"
 	case "img_files_directory":
 		proxyPath = "/server/get_image_files_map.php"
 	case "img_directory":
