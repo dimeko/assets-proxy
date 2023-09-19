@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: "${DOCK_MYSQL_PASS}"
       MYSQL_DB: "${DOCK_MYSQL_DB}"
       MYSQL_PORT: "3306"
-      MYSQL_HOST: "${DOCK_MYSQL_HOST}"
+      MYSQL_HOST: "mysql"
     depends_on:
       - mysql
     ports:
@@ -35,6 +35,37 @@ services:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "${DOCK_MYSQL_HOST}" ,"-p${DOCK_MYSQL_PASS}"]
       timeout: 20s
       retries: 10
+  migrate_up:
+    image: migrate/migrate:4
+    container_name: app_migrate_up
+    depends_on:
+      - mysql
+    volumes:
+        - ${PWD}/db:/db
+    command: [
+      "-verbose",
+      "-source=file://db/migrations", 
+      "-database", 
+      "mysql://${DOCK_MYSQL_USER}:${DOCK_MYSQL_PASS}@$tcp(host.docker.internal:${DOCK_MYSQL_PORT})/${DOCK_MYSQL_DB}?multiStatements=true", 
+      "up", "1"]
+  migrate_down:
+    image: migrate/migrate:4
+    container_name: app_migrate_down
+    depends_on:
+      - mysql
+    volumes:
+        - ${PWD}/db:/db
+    command: [
+      "-verbose",
+      "-source=file://db/migrations", 
+      "-database", 
+      "mysql://${DOCK_MYSQL_USER}:${DOCK_MYSQL_PASS}@$tcp(host.docker.internal:${DOCK_MYSQL_PORT})/${DOCK_MYSQL_DB}?multiStatements=true", 
+      "down", "1"]
+
 volumes:
   assets-proxy-data:
     external: false
+    driver_opts:
+      type: none
+      device: ${PWD}/volumes
+      o: bind

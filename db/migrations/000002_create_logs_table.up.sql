@@ -1,7 +1,7 @@
 START TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS logs (
-    id int NOT NULL, 
+    id int NOT NULL AUTO_INCREMENT, 
     user int,
     event varchar(255),
     info varchar(255),

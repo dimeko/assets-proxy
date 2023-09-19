@@ -19,19 +19,20 @@ ifeq ($(wildcard $(CLIENT_BUILD_DIR)/.*),)
 endif
 
 build-client:
+	npm i
 	npm run --prefix $(CLIENT_DIR) build
 
 run-dev-client:
 	npm run --prefix $(CLIENT_DIR) serve
 
-migrate:
-	migrate -path db/migrations -database "$(DB_DRIVER)://$(MYSQL_USER):$(MYSQL_PASS)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DB)" -verbose up
+# migrate:
+# 	migrate -path db/migrations -database "$(DB_DRIVER)://$(MYSQL_USER):$(MYSQL_PASS)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DB)" -verbose up
 
-migrate-down:
-	migrate -path db/migrations -database "$(DB_DRIVER)://$(MYSQL_USER):$(MYSQL_PASS)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DB)" -verbose down
+# migrate-down:
+# 	migrate -path db/migrations -database "$(DB_DRIVER)://$(MYSQL_USER):$(MYSQL_PASS)@tcp($(MYSQL_HOST):$(MYSQL_PORT))/$(MYSQL_DB)" -verbose down
 
 seed:
-	docker exec -i $(DOCK_MYSQL_CONTAINER_NAME) mysql -u $(MYSQL_USER) -p$(MYSQL_PASS) $(DOCK_MYSQL_DB) < $(shell pwd)/development/user_seeds.sql
+	docker exec -i $(DOCK_MYSQL_CONTAINER_NAME) mysql -u $(MYSQL_USER) -p$(MYSQL_PASS) $(DOCK_MYSQL_DB) < $(shell pwd)/db/dev_data/user_seeds.sql
 
 build-prod:
 	env GOOS=linux GOARCH=arm go build -o main main.go 
