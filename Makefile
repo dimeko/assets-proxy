@@ -31,4 +31,8 @@ seed:
 	docker exec -i $(DOCK_MYSQL_CONTAINER_NAME) mysql -u $(MYSQL_USER) -p$(MYSQL_PASS) $(DOCK_MYSQL_DB) < $(shell pwd)/db/$(seed_folder)/user_seeds.sql
 
 build-prod:
-	docker build -f $(shell pwd)/build/Dockerfile.build --build-arg GIT_COMMIT=$(CURRENT_TAG) --build-arg BUILD_DATE="$(shell date -u)" --build-arg BUILD_ARCH=amd64 -t assets-proxy:$(CURRENT_TAG) .
+	docker build -f $(shell pwd)/build/Dockerfile.build --platform linux/amd64 --build-arg GIT_COMMIT=$(CURRENT_TAG) --build-arg BUILD_DATE="$(shell date -u)" --build-arg BUILD_ARCH=amd64 -t assets-proxy:$(CURRENT_TAG) .
+
+docker-push:
+	docker tag assets-proxy:$(CURRENT_TAG) dim18oiko/assets-proxy:$(CURRENT_TAG)
+	docker push dim18oiko/assets-proxy:$(CURRENT_TAG)
