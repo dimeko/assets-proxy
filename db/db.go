@@ -31,5 +31,9 @@ func Connect() *sql.DB {
 		panic(err.Error())
 	}
 
+	if err := db.Ping(); err != nil {
+		panic(err.Error())
+	}
+
 	return db
 }

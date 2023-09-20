@@ -32,14 +32,14 @@ func start(command *cobra.Command, args []string) {
 
 func StartServer() {
 	err := godotenv.Load(filepath.Join("./", ".env"))
-	if err != nil {
+	port := os.Getenv("APP_PORT")
+	if err != nil && port == "" {
 		panic("Cannot find .env file")
 	}
 
 	db := db.New()
 	defer db.Conn.Close()
 
-	port := os.Getenv("APP_PORT")
 	api := api.New(db)
 	httpServer := &http.Server{
 		Handler:      api.Routes,

@@ -17,3 +17,6 @@ Build vue bundle
 Run development client server
 
 ```make run-dev-client```
+
+Create initial users:
+```make seed_folder=dev_data seed```

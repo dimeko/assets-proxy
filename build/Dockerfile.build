@@ -1,0 +1,33 @@
+FROM golang:1.18.2  AS builder
+
+ENV GO111MODULE=on
+
+WORKDIR /app
+
+COPY ../. .
+
+RUN go mod download \ 
+&& go get github.com/dimeko/assets-proxy/api \
+&& go get github.com/dimeko/assets-proxy/config \
+&& go get github.com/dimeko/assets-proxy/db 
+
+ARG GIT_COMMIT
+ARG BUILD_ARCH
+ARG BUILD_DATE
+
+RUN env GOOS=linux GOARCH=${BUILD_ARCH} \
+    go build -ldflags "-X 'github.com/dimeko/assets-proxy/config.Version=${GIT_COMMIT}' \ 
+    -X 'github.com/dimeko/assets-proxy/config.BuildDate=${BUILD_DATE}'" -o /bin/assets-proxy
+
+FROM alpine:latest
+
+WORKDIR /app
+COPY --from=builder /app/client /app/client
+COPY --from=builder /bin/assets-proxy /app
+
+COPY build/entrypoint.sh /app
+RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/assets-proxy
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+EXPOSE 8001

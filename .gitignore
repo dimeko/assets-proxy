@@ -1,4 +1,5 @@
 main
 .env
+build/prod.env
 db/development/
 db/prod_data/

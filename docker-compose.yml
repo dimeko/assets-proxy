@@ -3,7 +3,7 @@ services:
   app:
     build: .
     image: assets-proxy
-    container_name: assets-proxy-app
+    container_name: assets-app
     restart: "always"
     environment:
       APP_PORT: "${APP_PORT}"
